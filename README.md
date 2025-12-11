@@ -1,8 +1,21 @@
-# 1. Build the image first (one time)
+#### 1. Build the image first (one time)
+```bash
 docker build -t langchain-sandbox .
+```
 
-# 2. Test the container interactively with a simple Python script
+#### 2. Test the container interactively with a simple Python script
+```bash
 docker run --rm -it -v "$(pwd)/code:/code" langchain-sandbox:latest /code/sample.py
+```
 
-# 3. Run the main.py
+#### 3. Set up environment variables
+Copy `example.env` to `.env` and add your Hugging Face API token:
+```bash
+cp example.env .env
+# Edit .env and add your HUGGINGFACEHUB_API_TOKEN
+```
+
+#### 4. Run the main.py
+```bash
 uv run main.py
+```

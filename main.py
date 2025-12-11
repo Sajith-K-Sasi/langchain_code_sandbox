@@ -22,13 +22,32 @@ llm = HuggingFaceEndpoint(
 chat_model = ChatHuggingFace(llm=llm)
 
 
-def main():
+def chat(query:str):
+
+    console = Console()
+
+    # without code execution
+
+    messages = [
+        SystemMessage(content="You are a helpful assistant"),
+        HumanMessage(content=query)
+    ]   
+
+    response = chat_model.invoke(messages)
+    
+    panel = Panel(query, title="Question", border_style="blue")
+    console.print(panel)
+    
+    panel = Panel(response.content, title="AI Response - without code execution", border_style="red")
+    console.print(panel)
+
+    # with code execution
 
     messages = [
         SystemMessage(
             content="""generate python code to find answer, only generate the code.
             Instructions:
-            Add the comment # AUTO_INSTALL: package_name1 package_name2 ... on the top of the code if any packages are required.
+            Add the comment # AUTO_INSTALL: package_name1 package_name2 ... on the top of the code for any additional packages that are required for the code to run successfully.
             Don't use print statements in the code.
             Put the whole code in a function and run the function to execute the code storing the result to result variable.
             The result should be always a descriptive string.
@@ -49,34 +68,31 @@ def main():
                 return f"the answer is {ans}"
             result=asyncio.run(execute_code())
             """
-        )
+        ),
+        HumanMessage(content=query),
     ]
-
-    messages.append(HumanMessage(content="what is my age if i was born on 22/02/1989."))
-    # messages.append(HumanMessage(content="create me a pandas dataframe with 10 rows and 3 columns with random values"))
-    # messages.append(HumanMessage(content="Hello"))
-    # messages.append(HumanMessage(content="How many r's are there in strawberries"))
-    # messages.append(HumanMessage(content="whats the time and date now use indian timezone"))
-
 
     response = chat_model.invoke(messages)
 
-    console = Console()
-    panel = Panel(response.content, title="AI Response", border_style="blue")
-    console.print(panel)
-
     # Extract code
     code = extract_code(response.content)
-    panel = Panel(code, title="Extracted Code", border_style="yellow")
-    console.print(panel)
 
     # Run code
     result = run_code_in_container(code)
-    panel = Panel(result, title="Result", border_style="green")
+    panel = Panel(result, title="AI Response - with code execution", border_style="green")
     console.print(panel)
 
 
-main()
+
+
+
+# query = "create me a pandas dataframe with 10 rows and 3 columns with random values"
+# query = "Hello"
+# query = "How many r's are there in strawberries"
+query = "what's the time and date now in Indian timezone"
+# query = "what is my age if i was born on 22/02/1989."
+chat(query)
+
 
 
 
