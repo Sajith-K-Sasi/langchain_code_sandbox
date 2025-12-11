@@ -5,7 +5,7 @@ docker build -t langchain-sandbox .
 
 #### 2. Test the container interactively with a simple Python script
 ```bash
-docker run --rm -it -v "$(pwd)/code:/code" langchain-sandbox:latest /code/sample.py
+docker run --rm -it -v "$(pwd)/test:/code" langchain-sandbox:latest /code/sample.py
 ```
 
 #### 3. Set up environment variables
