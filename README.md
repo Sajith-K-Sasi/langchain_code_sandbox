@@ -15,14 +15,19 @@ cp example.env .env
 # Edit .env and add your HUGGINGFACEHUB_API_TOKEN
 ```
 
-#### 4. Run the main.py
+#### 4. Install dependencies
+```bash
+uv sync
+```
+
+#### 5. Run the main.py
 ```bash
 uv run main.py
 ```
 
-#### 5. Example usage
+#### 6. Example usage
 Try asking questions like:
 - "what's the time and date now in Indian timezone"
 - "calculate 25 * 17"
-- "generate a random password"
+- "what's the highlight in this page https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct"
 

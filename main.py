@@ -10,7 +10,7 @@ load_dotenv()
 llm = HuggingFaceEndpoint(
     repo_id="Qwen/Qwen3-Coder-480B-A35B-Instruct",
     task="text-generation",
-    max_new_tokens=512
+    max_new_tokens=10000
 )
 chat_model = ChatHuggingFace(llm=llm)
 
@@ -40,4 +40,4 @@ def chat(query: str):
     print(f"Result: {output}")
 
 # Run it!
-chat("what's the time and date now in Indian timezone")
+chat("what's the highlight in this page https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct")
