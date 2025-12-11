@@ -1,6 +1,9 @@
-from langgraph.graph import StateGraph, START, END
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+
+from rich.console import Console
+from rich.panel import Panel
+
 from src.exec_code import run_code_in_container
 from src.extract_code import extract_code
 
@@ -22,31 +25,31 @@ chat_model = ChatHuggingFace(llm=llm)
 def main():
 
     messages = [
-        # SystemMessage(
-        #     content="""generate python code to find answer, only generate the code.
-        #     Instructions:
-        #     Add the comment # AUTO_INSTALL: package_name1 package_name2 ... on the top of the code if any packages are required.
-        #     Don't use print statements in the code.
-        #     Put the whole code in a function and run the function to execute the code storing the result to result variable.
-        #     The result should be always a descriptive string.
-        #     example 1:
-        #     # AUTO_INSTALL: numpy
-        #     def execute_code():
-        #         import numpy
-        #         ans = 1 + 1
-        #         return f"the answer is {ans}"
-        #     result=execute_code()
+        SystemMessage(
+            content="""generate python code to find answer, only generate the code.
+            Instructions:
+            Add the comment # AUTO_INSTALL: package_name1 package_name2 ... on the top of the code if any packages are required.
+            Don't use print statements in the code.
+            Put the whole code in a function and run the function to execute the code storing the result to result variable.
+            The result should be always a descriptive string.
+            example 1:
+            # AUTO_INSTALL: numpy
+            def execute_code():
+                import numpy
+                ans = 1 + 1
+                return f"the answer is {ans}"
+            result=execute_code()
 
-        #     example 2:
-        #     # AUTO_INSTALL: numpy
-        #     async def execute_code():
-        #         import numpy
-        #         import asyncio
-        #         ans = 1 + 1
-        #         return f"the answer is {ans}"
-        #     result=asyncio.run(execute_code())
-        #     """
-        # )
+            example 2:
+            # AUTO_INSTALL: numpy
+            async def execute_code():
+                import numpy
+                import asyncio
+                ans = 1 + 1
+                return f"the answer is {ans}"
+            result=asyncio.run(execute_code())
+            """
+        )
     ]
 
     messages.append(HumanMessage(content="what is my age if i was born on 22/02/1989."))
@@ -58,15 +61,19 @@ def main():
 
     response = chat_model.invoke(messages)
 
-    print(response.content)
+    console = Console()
+    panel = Panel(response.content, title="AI Response", border_style="blue")
+    console.print(panel)
 
     # Extract code
-    # code = extract_code(response.content)
-    # print(code)
+    code = extract_code(response.content)
+    panel = Panel(code, title="Extracted Code", border_style="yellow")
+    console.print(panel)
 
-    # # Run code
-    # result = run_code_in_container(code)
-    # print(result)
+    # Run code
+    result = run_code_in_container(code)
+    panel = Panel(result, title="Result", border_style="green")
+    console.print(panel)
 
 
 main()
