@@ -19,3 +19,35 @@ cp example.env .env
 ```bash
 uv run main.py
 ```
+
+#### 5. Example usage
+Try asking questions like:
+- "what's the time and date now in Indian timezone"
+- "calculate 25 * 17"
+- "generate a random password"
+
+#### Output
+```bash
+╭───────────────────────────────────────────── Question ──────────────────────────────────────────────╮
+│ what's the time and date now in Indian timezone                                                     │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─────────────────────────────── AI Response - without code execution ────────────────────────────────╮
+│ I don't have access to real-time information, so I can't tell you the current time and date in      │
+│ India.                                                                                              │
+│                                                                                                     │
+│ To get the current time in India (IST - Indian Standard Time), you can:                             │
+│ - Search "current time in India" on Google                                                          │
+│ - Check a world clock website                                                                       │
+│ - Use your phone's world clock feature                                                              │
+│ - Ask a voice assistant like Siri or Google Assistant                                               │
+│                                                                                                     │
+│ India's timezone is UTC+5:30, and it doesn't observe daylight saving time, so it remains consistent │
+│ year-round.                                                                                         │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭───────────────────────────────── AI Response - with code execution ─────────────────────────────────╮
+│ {"status": "info", "message": "Installing packages: pytz"}                                          │
+│ {"status": "info", "message": "Installation successful"}                                            │
+│ {"status": "success", "output": "The current date and time in Indian timezone is: 2025-12-11        │
+│ 17:04:00 IST"}                                                                                      │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
