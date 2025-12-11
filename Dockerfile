@@ -1,32 +1,26 @@
 FROM python:3.12-slim
 
-# 1. Install uv
-# It is faster/cleaner to copy the binary than to pip install it
+# 1. Install uv for lightning-fast package management
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# 2. Setup the application directory and user
-# Create directory and user in one step to keep layers small
+# 2. Setup user permissions (Security Best Practice)
 RUN useradd -m codeuser && \
     mkdir /app && \
     chown codeuser:codeuser /app
 
-# 3. Switch Context
 USER codeuser
 WORKDIR /app
 
-# 4. Environment Variables
-# Add the venv to PATH so "python" automatically uses the venv
+# 3. Configure Virtual Environment
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
-# 5. Install Dependencies
-# Create a venv and install packages into it
-# --no-cache prevents uv from leaving a cache directory in your image layer
+# 4. Create venv and pre-install common libs
 RUN uv venv && \
     uv pip install --no-cache requests numpy
 
-# 6. Copy Code
-# Use --chown to ensure the user owns their own script
+# 5. The Wrapper Script
 COPY --chown=codeuser:codeuser src/exec_script.py /app/
 
+# The container acts as an executable wrapper
 ENTRYPOINT ["python", "exec_script.py"]

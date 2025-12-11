@@ -1,43 +1,33 @@
 import docker
 import tempfile
 import os
-import json
 
 def run_code_in_container(code: str) -> str:
+    # 1. Write the LLM code to a temp file on the host
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, dir='/tmp') as tmp:
         tmp.write(code)
         code_path = tmp.name
+
     try:
         client = docker.from_env()
         
-        # Run container with network access for MCP HTTP servers
+        # 2. Run the container
+        # The ENTRYPOINT is 'python exec_script.py', so we just pass the file path
         container = client.containers.run(
             'langchain-sandbox',
             command=[f'/code/{os.path.basename(code_path)}'],
-            volumes={'/tmp': {'bind': '/code', 'mode': 'ro'}},
-            network_mode='bridge',  # Allow network access to MCP servers
-            mem_limit='512m',
-            cpu_period=100000,
-            cpu_quota=50000,
-            remove=True,
-            detach=False,
-            stdout=True,
-            stderr=True
+            volumes={'/tmp': {'bind': '/code', 'mode': 'ro'}}, # Mount host /tmp to container /code
+            network_mode='bridge',  # Allow internet for pip install
+            mem_limit='512m',       # Sandbox resource limits
+            remove=True             # Auto-delete after run
         )
         
-        
-        # Decode output
-        output = container.decode('utf-8').strip()
-
-        # results = [json.loads(line) for line in output.strip().split('\n')]
-        
-        result = output
-
+        result= container.decode('utf-8').strip()
     except Exception as e:
         result = f"""{{"status": "error", "output": {str(e)}}}"""
     finally:
         try:
-            os.unlink(code_path)
+            os.unlink(code_path) # Cleanup host file
         except:
             pass
 

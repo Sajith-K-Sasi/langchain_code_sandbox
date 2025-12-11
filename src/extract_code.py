@@ -1,8 +1,3 @@
-import docker
-import tempfile
-import os
-import json
-
 def extract_code(response: str) -> str:
     code = response
     if "```python" in code:
