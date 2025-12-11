@@ -21,31 +21,7 @@ llm = HuggingFaceEndpoint(
 
 chat_model = ChatHuggingFace(llm=llm)
 
-
-def chat(query:str):
-
-    console = Console()
-
-    # without code execution
-
-    messages = [
-        SystemMessage(content="You are a helpful assistant"),
-        HumanMessage(content=query)
-    ]   
-
-    response = chat_model.invoke(messages)
-    
-    panel = Panel(query, title="Question", border_style="blue")
-    console.print(panel)
-    
-    panel = Panel(response.content, title="AI Response - without code execution", border_style="red")
-    console.print(panel)
-
-    # with code execution
-
-    messages = [
-        SystemMessage(
-            content="""generate python code to find answer, only generate the code.
+system_message = """Generate python code to find answer, only generate the code.
             Instructions:
             Add the comment # AUTO_INSTALL: package_name1 package_name2 ... on the top of the code for any additional packages that are required for the code to run successfully.
             Don't use print statements in the code.
@@ -68,7 +44,32 @@ def chat(query:str):
                 return f"the answer is {ans}"
             result=asyncio.run(execute_code())
             """
-        ),
+
+
+def chat(query:str):
+
+    console = Console()
+
+    # without code execution
+
+    messages = [
+        SystemMessage(content="You are a helpful assistant"),
+        HumanMessage(content=query)
+    ]   
+
+    response = chat_model.invoke(messages)
+    
+    panel = Panel(query, title="Question", border_style="blue")
+    console.print(panel)
+    
+    panel = Panel(response.content, title="AI Response - without code execution", border_style="red")
+    console.print(panel)
+
+    
+    # with code execution
+
+    messages = [
+        SystemMessage(content=system_message),
         HumanMessage(content=query),
     ]
 
@@ -76,10 +77,12 @@ def chat(query:str):
 
     # Extract code
     code = extract_code(response.content)
+    panel = Panel(code, title="AI Generated Code", border_style="green")
+    console.print(panel)
 
     # Run code
     result = run_code_in_container(code)
-    panel = Panel(result, title="AI Response - with code execution", border_style="green")
+    panel = Panel(result, title="Code Execution Result", border_style="green")
     console.print(panel)
 
 
