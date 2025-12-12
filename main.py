@@ -9,7 +9,7 @@ load_dotenv()
 
 # Setup LLM HuggingFace
 # llm = HuggingFaceEndpoint(
-#     repo_id="Qwen/Qwen3-Coder-30B-A3B-Instruct",
+#     repo_id="Qwen/Qwen3-Coder-480B-A35B-Instruct",
 #     task="text-generation",
 #     max_new_tokens=10000
 # )
@@ -22,7 +22,7 @@ chat_model = ChatGroq(model="openai/gpt-oss-20b")
 system_prompt = """
 generate python code to find answer.
 Instructions:
-1. Add '# AUTO_INSTALL: package_name' for dependencies. If no dependencies do not add '# AUTO_INSTALL:'.
+1. Add '# AUTO_INSTALL: package_name1 package_name2' for dependencies. If no dependencies do not add '# AUTO_INSTALL:'.
 2. Put logic in a function.
 3. The final answer should be a descriptive string.
 4. Store final answer in a variable named 'result'.
@@ -46,7 +46,7 @@ def chat(query: str):
 
 
 
-query="what's the highlight in this page https://docs.langchain.com/oss/python/integrations/chat/groq"
+query="get data from this page https://docs.langchain.com/oss/python/integrations/chat/groq"
 # query="whats 27 * 35"
 # Run it!
 chat(query)
