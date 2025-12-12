@@ -6,21 +6,31 @@ import json
 
 def install_packages(code_str: str):
     """
-    Scans code for '# AUTO_INSTALL: pandas numpy' and installs them using uv.
+    Scans code for '# AUTO_INSTALL: [pandas, numpy]' and installs them using uv.
     """
-    pattern = r'#\s*AUTO_INSTALL:\s*(.+)'
-    matches = re.findall(pattern, code_str)
+    pattern = r'#\s*AUTO[-_\s]+INSTALL\s*:?\s*\[(.*?)\]'
+    matches = re.findall(pattern, code_str, re.IGNORECASE | re.DOTALL)
     
+    all_packages = []
     if matches:
-        packages = []
-        for match in matches:
-            packages.extend(match.split())
+        for content in matches:
+            content = content.replace('\n', ',')
+
+            # Split by comma and strip whitespace from each package name
+            pkgs = [p.strip() for p in content.split(',') if p.strip()]
+            all_packages.extend(pkgs)
     
-        # Use uv for fast installation
-        print(json.dumps({"status": "info", "output": f"Installing packages: {' '.join(packages)}"}))
-        subprocess.check_call(["uv", "pip", "install"] + packages)
-        print(json.dumps({"status": "info", "output": "Packages installed successfully"}))
-        importlib.invalidate_caches()
+    if all_packages:
+        # Remove duplicates
+        unique_packages = list(dict.fromkeys(all_packages))
+        
+        print(json.dumps({"status": "info", "output": f"Installing packages: {', '.join(unique_packages)}"}))
+        try:
+            subprocess.check_call(["uv", "pip", "install"] + unique_packages)
+            print(json.dumps({"status": "info", "output": "Packages installed successfully"}))
+            importlib.invalidate_caches()
+        except subprocess.CalledProcessError as e:
+            print(json.dumps({"status": "error", "output": str(e)}))
         
 
 def execute_code(code_str: str):
