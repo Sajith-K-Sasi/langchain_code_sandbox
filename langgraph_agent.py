@@ -25,7 +25,7 @@ class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     router_state: RouterState
 
-model: BaseChatModel = init_chat_model(model="openai/gpt-oss-20b",model_provider="groq")
+model: BaseChatModel = init_chat_model(model="openai/gpt-oss-120b",model_provider="groq")
 
 # Define tools
 @tool
@@ -55,25 +55,24 @@ def tool_node(state: dict):
     return {"messages": result}
 
 router_system_prompt = """
-Decide whether to use code agent or direct response and give the reason for the same.
+Decide whether to generate code or direct response and give the reason for the same.
 Decision Instructions:
-1. code agent is needed for arithmetic calculations, math problems, tool calls, up-to-date information etc.
+1. code generation is needed for arithmetic calculations, math problems, up-to-date information etc.
 2. direct response is needed for general questions, information from your knowledge base etc.
 Response Instructions:
-1. Respond in JSON
 2. If direct response is required, respond with {"action": "reply", "reason": "reason"}
-3. If code agent is required, respond with {"action": "compute", "reason": "reason"}
+3. If code generate is required, respond with {"action": "code", "reason": "reason"}
 """
 
 code_agent_system_prompt = """
-always generate python code and execute it to find answer.
+Always generate python code and execute it to find answer.
 Code Generation Instructions:
 1. Add '# AUTO_INSTALL: [package_name1, package_name2]' for dependencies if required.
 3. Put logic in a function.
 4. The final answer should be a descriptive string with the complete result not the summary only.
 5. Store final answer in a variable named 'result'.
 6. Don't print anything.
-Tool Calling Instruction:
+Code Execution Instructions:
 1. Use tool "code_executor" to execute the code.
 2. If tool "code_executor" returns an error, then try again with updated code.
 """
@@ -82,7 +81,7 @@ def llm_router(state: MessagesState)-> MessagesState:
     """Decide if we should continue with code agent or llm node"""
     
 
-    state["messages"]=[
+    state["messages"]=        [
         model.invoke(
             [
             SystemMessage(
@@ -91,7 +90,8 @@ def llm_router(state: MessagesState)-> MessagesState:
             ]
             +state["messages"]
             )
-        ]
+            ]
+        
 
     router_state:RouterState = json.loads(state["messages"][-1].content)
     state["router_state"] = router_state
@@ -148,7 +148,7 @@ def route_to(state: MessagesState) -> Literal["agent_node", "llm_node"]:
 
     router_state = state.get("router_state", RouterState(action="reply"))    
 
-    if router_state["action"] == "compute":
+    if router_state["action"] == "code":
         return "code_agent"
     elif router_state["action"] == "reply":
         return "llm_node"
@@ -182,32 +182,17 @@ agent = agent_builder.compile()
 
 
 # Invoke
-# messages: list[HumanMessage] = [HumanMessage(content="get me the latest news about bitcoin")]
-# messages = agent.invoke({"messages": messages})
-# for m in messages["messages"]:
-#     m.pretty_print()
 
-# messages: list[HumanMessage] = [HumanMessage(content="get the count of latest news on bitcoin")]
-# messages = agent.invoke({"messages": messages})
-# for m in messages["messages"]:
-#     m.pretty_print()
-
-# messages: list[HumanMessage] = [HumanMessage(content="Hello")]
-# messages = agent.invoke({"messages": messages})
-# for m in messages["messages"]:
-#     m.pretty_print()
+query="get me the latest news about bitcoin"
+# query="Hello"
+# query="what is 3 * 456"
 
 
-# messages: list[HumanMessage] = [HumanMessage(content="what is 3 * 456")]
-# messages = agent.invoke({"messages": messages,"router_state": {"action": "compute"}})
-# for m in messages["messages"]:
-#     m.pretty_print()
-
-
-messages: list[HumanMessage] = [HumanMessage(content="who is the current president of india?")]
+messages: list[HumanMessage] = [HumanMessage(content=query)]
 messages = agent.invoke({"messages": messages,"router_state": {"action": "compute"}})
 for m in messages["messages"]:
     m.pretty_print()
+
 
 
 
