@@ -20,12 +20,17 @@ cp example.env .env
 uv sync
 ```
 
-#### 5. Run the main.py
+#### 5. Run the langchain_example.py
 ```bash
-uv run main.py
+uv run langchain_example.py
 ```
 
-#### 6. Example usage
+#### 6. Run the langchain_agent.py
+```bash
+uv run langchain_agent.py
+```
+
+#### 7. Example usage
 Try asking questions like:
 - "what's the time and date now in Indian timezone"
 - "calculate 25 * 17"

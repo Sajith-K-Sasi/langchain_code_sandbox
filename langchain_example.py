@@ -8,15 +8,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Setup LLM HuggingFace
-# llm = HuggingFaceEndpoint(
-#     repo_id="Qwen/Qwen3-Coder-480B-A35B-Instruct",
-#     task="text-generation",
-#     max_new_tokens=10000
-# )
-# chat_model = ChatHuggingFace(llm=llm)
+llm = HuggingFaceEndpoint(
+    repo_id="Qwen/Qwen3-Coder-480B-A35B-Instruct",
+    task="text-generation",
+    max_new_tokens=10000
+)
+chat_model = ChatHuggingFace(llm=llm)
 
 # Setup LLM Groq
-chat_model = ChatGroq(model="openai/gpt-oss-20b")
+# chat_model = ChatGroq(model="openai/gpt-oss-20b")
 
 # The Prompt Engineering
 system_prompt = """
@@ -24,7 +24,7 @@ generate python code to find answer.
 Instructions:
 1. Add '# AUTO_INSTALL: [package_name1, package_name2]' for dependencies if required.
 3. Put logic in a function.
-4. The final answer should be a descriptive string.
+4. The final answer should be a descriptive string with the complete result not the summary only.
 5. Store final answer in a variable named 'result'.
 6. Don't print anything.
 """
