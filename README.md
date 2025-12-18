@@ -25,9 +25,9 @@ uv sync
 uv run langchain_example.py
 ```
 
-#### 6. Run the langchain_agent.py
+#### 6. Run the langgraph_agent.py
 ```bash
-uv run langchain_agent.py
+uv run langgraph_agent.py
 ```
 
 #### 7. Example usage

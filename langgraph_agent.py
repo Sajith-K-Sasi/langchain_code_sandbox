@@ -44,7 +44,7 @@ code_agent_tools: list[tool] = [code_executor]
 tools_by_name: dict[str, tool] = {tool.name: tool for tool in code_agent_tools}
 coding_model = model.bind_tools(code_agent_tools)
 
-def tool_node(state: dict):
+def tool_node(state: MessagesState):
     """Performs the tool call"""
 
     result = []
@@ -55,17 +55,14 @@ def tool_node(state: dict):
     return {"messages": result}
 
 router_system_prompt = """
-Decide whether to generate code or direct response and give the reason for the same.
-Decision Instructions:
-1. code generation is needed for arithmetic calculations, math problems, up-to-date information etc.
-2. direct response is needed for general questions, information from your knowledge base etc.
-Response Instructions:
-2. If direct response is required, respond with {"action": "reply", "reason": "reason"}
-3. If code generate is required, respond with {"action": "code", "reason": "reason"}
+Decide whether to generate code or direct response.
+1. Code generation: arithmetic, math, up-to-date info.
+2. Direct response: general questions, greetings.
+Respond with JSON: {"action": "code/reply", "reason": "reason"}
 """
 
 code_agent_system_prompt = """
-Always generate python code and execute it to find answer.
+Generate python code and execute it to find answer.
 Code Generation Instructions:
 1. Add '# AUTO_INSTALL: [package_name1, package_name2]' for dependencies if required.
 3. Put logic in a function.
@@ -79,23 +76,12 @@ Code Execution Instructions:
 
 def llm_router(state: MessagesState)-> MessagesState:
     """Decide if we should continue with code agent or llm node"""
+    response = model.invoke([
+        SystemMessage(content=router_system_prompt)
+    ] + state["messages"])
     
-
-    state["messages"]=        [
-        model.invoke(
-            [
-            SystemMessage(
-                content=router_system_prompt
-                )
-            ]
-            +state["messages"]
-            )
-            ]
-        
-
-    router_state:RouterState = json.loads(state["messages"][-1].content)
+    router_state = json.loads(response.content)
     state["router_state"] = router_state
-
     return state
     
 def code_agent(state: MessagesState) -> MessagesState:
